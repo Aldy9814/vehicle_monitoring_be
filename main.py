@@ -24,51 +24,6 @@ app.add_middleware(
 # DASHBOARD
 @app.get("/dashboard/summary")
 def get_dashboard_summary():
-    """Memberikan list lengkap kendaraan serta status terkini"""
-    vehicles_docs = vehicles_ref.stream()
-
-    available_vehicles = []
-    in_use_vehicles = []
-
-    for v_doc in vehicles_docs:
-        v_data = v_doc.to_dict()
-        vehicle_info = {
-            "vehicle_id": v_doc.id,
-            "name": v_data.get("name", ""),
-            "license_plate": v_data.get("license_plate", ""),
-            "current_km": v_data.get("current_km", 0)
-        }
-
-        if v_data.get("status") == "Available":
-            available_vehicles.append(vehicle_info)
-        elif v_data.get("status") == "In Use":
-            active_log = trip_logs_ref.where("vehicle_id", "==", v_doc.id).where("log_status", "==", "In Progress").limit(1).get()
-
-            if active_log:
-                log_data = active_log[0].to_dict()
-                passengers_list = log_data.get("passenger", [])
-                passenger_names = ", ".join([p.get("name", "") for p in passengers_list if p.get("name")])
-
-                vehicle_info["trip_details"] = {
-                    "log_id": active_log[0].id,
-                    "driver_name": log_data.get("driver_name", ""),
-                    "destination": log_data.get("destination", ""),
-                    "checkout_time": log_data.get("checkout_time", ""),
-                    "start_km": log_data.get("start_km", 0),
-                    "passengers_str": passenger_names
-                }
-            in_use_vehicles.append(vehicle_info)
-
-    return {
-        "status": "success",
-        "data": {
-            "available": available_vehicles,
-            "in_use": in_use_vehicles
-        }
-    }
-
-@app.get("/dashboard/summary")
-def get_dashboard_summary():
     vehicles_docs = vehicles_ref.stream()
     available_vehicles = []
     in_use_vehicles = []
