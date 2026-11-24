@@ -21,6 +21,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/")
+def health_check():
+    return {"status": "alive"}
+
 # DASHBOARD
 @app.get("/dashboard/summary")
 def get_dashboard_summary():
@@ -417,3 +421,4 @@ def cancel_checkout(log_id: str):
         "status": "success",
         "message": "Check-out berhasil dibatalkan dan dihapus"
     }
+
